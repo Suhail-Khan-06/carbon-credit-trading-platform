@@ -1,0 +1,109 @@
+.transactions {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.transactions-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.transactions-header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.transactions-header p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.tx-info-card,
+.tx-blockchain-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.tx-info-card h2,
+.tx-blockchain-card h2 {
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.step-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+
+.step-icon.green { background: rgba(16,185,129,0.15); color: var(--primary); }
+.step-icon.blue  { background: rgba(59,130,246,0.15); color: #3b82f6; }
+.step-icon.purple{ background: rgba(139,92,246,0.15); color: #8b5cf6; }
+
+.step-content {
+  flex: 1;
+}
+
+.step-content h3 {
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.step-content p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.tx-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.2rem;
+}
+
+.tx-option {
+  padding: 1.2rem;
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.tx-option h3 {
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.7rem;
+}
+
+.tx-option p {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
