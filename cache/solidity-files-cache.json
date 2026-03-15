@@ -1,0 +1,79 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\Users\\SUHAIL\\Desktop\\carbon-credit-trading-platform\\smart-contracts\\contracts\\CarbonCreditToken.sol": {
+      "lastModificationDate": 1773233094123,
+      "contentHash": "c91ee6fabf6d57baba0633a39c17a26f",
+      "sourceName": "smart-contracts/contracts/CarbonCreditToken.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "CarbonCreditToken"
+      ]
+    },
+    "C:\\Users\\SUHAIL\\Desktop\\carbon-credit-trading-platform\\smart-contracts\\contracts\\CarbonMarketplace.sol": {
+      "lastModificationDate": 1773233085262,
+      "contentHash": "3f5c4fe6b42f82d8f3ae8536e6efa4ba",
+      "sourceName": "smart-contracts/contracts/CarbonMarketplace.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./CarbonCreditToken.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "CarbonMarketplace"
+      ]
+    }
+  }
+}

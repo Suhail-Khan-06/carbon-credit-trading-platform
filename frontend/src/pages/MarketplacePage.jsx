@@ -1,26 +1,29 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { getContracts } from "../blockchain/connectWallet";
-import { FaStore, FaTag, FaShoppingCart, FaTimes } from "react-icons/fa";
+import { getContracts, getContractsForAccount, account, buyerAccount, ACCOUNTS } from "../blockchain/connectWallet";
+import { FaTag, FaShoppingCart } from "react-icons/fa";
 import "./MarketplacePage.css";
 
-const MarketplacePage = ({ signer, account }) => {
+const MarketplacePage = ({ activeAccount }) => {
   const [listings, setListings] = useState([]);
-  const [balance, setBalance] = useState(0);
+  const [sellerBalance, setSellerBalance] = useState(0);
+  const [buyerBalance, setBuyerBalance] = useState(0);
   const [amount, setAmount] = useState("");
   const [price, setPrice] = useState("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ msg: "", type: "" });
 
   useEffect(() => {
-    if (signer && account) loadData();
-  }, [signer, account]);
+    loadData();
+  }, [activeAccount]);
 
   const loadData = async () => {
     try {
-      const { token, marketplace } = await getContracts(signer);
-      const bal = await token.balances(account);
-      setBalance(Number(bal));
+      const { token, marketplace } = await getContracts();
+      const sBal = await token.balances(account);
+      const bBal = await token.balances(buyerAccount);
+      setSellerBalance(Number(sBal));
+      setBuyerBalance(Number(bBal));
       const all = await marketplace.getAllListings();
       setListings(all);
     } catch (e) {
@@ -35,68 +38,71 @@ const MarketplacePage = ({ signer, account }) => {
 
   const handleList = async (e) => {
     e.preventDefault();
-    if (!signer) return showStatus("Connect wallet first!", "error");
     setLoading(true);
     try {
-      const { token, marketplace } = await getContracts(signer);
+      const { token, marketplace } = getContractsForAccount(ACCOUNTS[activeAccount]);
       const amt = parseInt(amount);
       const priceWei = ethers.parseEther(price);
+
       showStatus("Approving credits...", "info");
-      const approveTx = await token.approve(marketplace.target, amt);
+      const approveTx = await token.approve(await marketplace.getAddress(), amt);
       await approveTx.wait();
+
       showStatus("Creating listing...", "info");
-      const tx = await marketplace.listCreditsForSale(amt, priceWei);
+      const { marketplace: marketplace2 } = getContractsForAccount(ACCOUNTS[activeAccount]);
+      const tx = await marketplace2.listCreditsForSale(amt, priceWei);
       await tx.wait();
+
       showStatus("Listing created successfully!", "success");
       setAmount("");
       setPrice("");
       await loadData();
     } catch (e) {
-      showStatus("Error: " + e.message.slice(0, 60), "error");
+      console.error("Full error:", e);
+      showStatus("Error: " + e.message.slice(0, 80), "error");
     }
     setLoading(false);
   };
 
   const handleBuy = async (listing) => {
-    if (!signer) return showStatus("Connect wallet first!", "error");
-    setLoading(true);
-    try {
-      const { marketplace } = await getContracts(signer);
-      showStatus("Processing purchase...", "info");
-      const tx = await marketplace.buyCredits(Number(listing.id), {
-        value: listing.price,
-      });
-      await tx.wait();
-      showStatus("Purchase successful! 🎉", "success");
-      await loadData();
-    } catch (e) {
-      showStatus("Error: " + e.message.slice(0, 60), "error");
-    }
-    setLoading(false);
-  };
+  setLoading(true);
+  try {
+    // Buyer is always whoever did NOT create the listing
+    const buyerKey = listing.seller.toLowerCase() === account.toLowerCase()
+      ? ACCOUNTS[buyerAccount]   // seller is Account #0 → buyer is Account #1
+      : ACCOUNTS[account];        // seller is Account #1 → buyer is Account #0
 
-  if (!account) {
-    return (
-      <div className="not-connected">
-        <FaStore className="not-connected-icon" />
-        <h2>Connect Your Wallet</h2>
-        <p>Please connect MetaMask to access the marketplace</p>
-      </div>
-    );
+    const { marketplace } = getContractsForAccount(buyerKey);
+
+    showStatus("Processing purchase...", "info");
+    const tx = await marketplace.buyCredits(Number(listing.id), {
+      value: listing.price,
+    });
+    await tx.wait();
+
+    showStatus("Purchase successful! 🎉", "success");
+    await loadData();
+  } catch (e) {
+    console.error("Full error:", e);
+    showStatus("Error: " + e.message.slice(0, 80), "error");
   }
+  setLoading(false);
+};
+
 
   return (
     <div className="marketplace">
       {status.msg && (
-        <div className={`status-banner ${status.type}`}>
-          {status.msg}
-        </div>
+        <div className={`status-banner ${status.type}`}>{status.msg}</div>
       )}
 
       <div className="marketplace-header">
         <div>
           <h1>Marketplace</h1>
-          <p className="account-label">Your balance: <span>{balance} CCT</span></p>
+          <p className="account-label">
+            Account #0: <span>{sellerBalance} CCT</span> &nbsp;|&nbsp;
+            Account #1: <span>{buyerBalance} CCT</span>
+          </p>
         </div>
         <button className="refresh-btn" onClick={loadData} disabled={loading}>
           ↻ Refresh
@@ -110,6 +116,9 @@ const MarketplacePage = ({ signer, account }) => {
             <FaTag className="card-icon" />
             <h2>List Credits for Sale</h2>
           </div>
+          <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
+            Listing as: {activeAccount.slice(0, 6)}...{activeAccount.slice(-4)}
+          </p>
           <form onSubmit={handleList}>
             <div className="form-group">
               <label>Amount (credits)</label>
@@ -144,6 +153,10 @@ const MarketplacePage = ({ signer, account }) => {
             <FaShoppingCart className="card-icon" />
             <h2>Active Listings</h2>
           </div>
+          <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
+            Buying as: {(activeAccount === account ? buyerAccount : account).slice(0, 6)}...
+            {(activeAccount === account ? buyerAccount : account).slice(-4)}
+          </p>
 
           {listings.filter((l) => l.isActive).length === 0 ? (
             <div className="empty-state">
@@ -167,18 +180,13 @@ const MarketplacePage = ({ signer, account }) => {
                       <div className="listing-price">
                         {ethers.formatEther(listing.price)} ETH
                       </div>
-                      {listing.seller.toLowerCase() !== account.toLowerCase() && (
-                        <button
-                          className="buy-btn"
-                          onClick={() => handleBuy(listing)}
-                          disabled={loading}
-                        >
-                          Buy
-                        </button>
-                      )}
-                      {listing.seller.toLowerCase() === account.toLowerCase() && (
-                        <span className="your-listing">Your listing</span>
-                      )}
+                      <button
+                        className="buy-btn"
+                        onClick={() => handleBuy(listing)}
+                        disabled={loading}
+                      >
+                        Buy
+                      </button>
                     </div>
                   </div>
                 ) : null

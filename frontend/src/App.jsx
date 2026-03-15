@@ -4,32 +4,25 @@ import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
 import MarketplacePage from "./pages/MarketplacePage";
 import Transactions from "./pages/Transactions";
-import { connectWallet } from "./blockchain/connectWallet";
+import { account, buyerAccount } from "./blockchain/connectWallet";
 import "./index.css";
 
 function App() {
-  const [web3State, setWeb3State] = useState({
-    provider: null,
-    signer: null,
-    account: null,
-  });
-
-  const handleConnect = async () => {
-    try {
-      const { provider, signer, account } = await connectWallet();
-      setWeb3State({ provider, signer, account });
-    } catch (e) {
-      console.error(e);
-      alert("Failed to connect wallet: " + e.message);
-    }
-  };
+  const [activeAccount, setActiveAccount] = useState(account); // default Account #0
 
   return (
     <Router>
-      <Navbar account={web3State.account} onConnect={handleConnect} />
+      <Navbar
+        account={activeAccount}
+        onSwitch={() =>
+          setActiveAccount((prev) =>
+            prev === account ? buyerAccount : account
+          )
+        }
+      />
       <Routes>
-        <Route path="/" element={<Dashboard signer={web3State.signer} account={web3State.account} />} />
-        <Route path="/marketplace" element={<MarketplacePage signer={web3State.signer} account={web3State.account} />} />
+        <Route path="/" element={<Dashboard account={activeAccount} />} />
+        <Route path="/marketplace" element={<MarketplacePage activeAccount={activeAccount} />} />
         <Route path="/transactions" element={<Transactions />} />
       </Routes>
     </Router>

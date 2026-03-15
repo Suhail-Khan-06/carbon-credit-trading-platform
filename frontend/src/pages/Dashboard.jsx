@@ -10,8 +10,8 @@ const Dashboard = ({ signer, account }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (signer && account) loadData();
-  }, [signer, account]);
+  loadData();
+}, [account]);
 
   const loadData = async () => {
     setLoading(true);
@@ -27,16 +27,6 @@ const Dashboard = ({ signer, account }) => {
     }
     setLoading(false);
   };
-
-  if (!account) {
-    return (
-      <div className="not-connected">
-        <FaLeaf className="not-connected-icon" />
-        <h2>Connect Your Wallet</h2>
-        <p>Please connect MetaMask to view your dashboard</p>
-      </div>
-    );
-  }
 
   return (
     <div className="dashboard">
@@ -93,7 +83,7 @@ const Dashboard = ({ signer, account }) => {
           <div className="stat-info">
             <p className="stat-label">Wallet</p>
             <h2 className="stat-value">Connected</h2>
-            <p className="stat-sub">MetaMask</p>
+            <p className="stat-sub">Local Wallet</p>
           </div>
         </div>
       </div>
